@@ -6,6 +6,7 @@ from typing import Union, Callable
 from functools import wraps
 
 
+@staticmethod
 def count_calls(method: Callable) -> Callable:
 
     @wraps(method)
