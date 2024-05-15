@@ -3,7 +3,20 @@
 import redis
 import uuid
 from typing import Union, Callable
+from functools import wraps
 
+
+def count_calls(method: Callable) -> Callable:
+    calls_count = {}
+
+    @wraps(method)
+    def wrapper(self, *args, **kwargs):
+        key = method.__qualname__
+        self.calls_counter[key] = self.calls_counter.get(key, 0) + 1
+
+        return method(self, *args, **kwargs)
+
+    return wrapper
 
 class Cache:
     def __init__(self):
@@ -12,7 +25,9 @@ class Cache:
         instance using flushdb """
         self._redis = redis.Redis()
         self._redis.flushdb()
+        self.calls_counter = {}
 
+    @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """  A store method that takes a data argument and returns a string.
         The method should generate a random key (e.g. using uuid), store the
