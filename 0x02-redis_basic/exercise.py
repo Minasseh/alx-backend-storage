@@ -7,7 +7,6 @@ from functools import wraps
 
 
 def count_calls(method: Callable) -> Callable:
-    calls_count = {}
 
     @wraps(method)
     def wrapper(self, *args, **kwargs):
