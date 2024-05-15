@@ -6,13 +6,12 @@ from typing import Union, Callable
 from functools import wraps
 
 
-@staticmethod
 def count_calls(method: Callable) -> Callable:
 
     @wraps(method)
     def wrapper(self, *args, **kwargs):
         key = method.__qualname__
-        self.calls_counter[key] = self.calls_counter.get(key, 0) + 1
+        self._redis.incr(key)
 
         return method(self, *args, **kwargs)
 
@@ -25,7 +24,6 @@ class Cache:
         instance using flushdb """
         self._redis = redis.Redis()
         self._redis.flushdb()
-        self.calls_counter = {}
 
     @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
